@@ -14,7 +14,6 @@ import datetime;
 import json;
 import io;
 from time import sleep;
-from threading import Thread;
 from Crypto.Cipher import AES;
 from Crypto.Hash import SHA256;
 import hashlib;
@@ -131,6 +130,11 @@ class WhatsAppWebClient:
             self.onCloseCallback["func"](self.onCloseCallback);
         eprint("WhatsApp backend Websocket closed.");
 
+    def keepAlive(self):
+        if self.activeWs is not None:
+            self.activeWs.send("?,,")
+            Timer(20.0, self.keepAlive).start()
+
     def onMessage(self, ws, message):
         try:
             messageSplit = message.split(",", 1);
@@ -180,7 +184,7 @@ class WhatsAppWebClient:
                     if isinstance(jsonObj, list) and len(jsonObj) > 0:					# check if the result is an array
                         eprint(json.dumps(jsonObj));
                         if jsonObj[0] == "Conn":
-                            Timer(25, lambda: self.activeWs.send('?,,')).start() # Keepalive Request
+                            Timer(20.0, self.keepAlive).start() # Keepalive Request
                             self.connInfo["clientToken"] = jsonObj[1]["clientToken"];
                             self.connInfo["serverToken"] = jsonObj[1]["serverToken"];
                             self.connInfo["browserToken"] = jsonObj[1]["browserToken"];
