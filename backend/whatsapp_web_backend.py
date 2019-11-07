@@ -43,18 +43,19 @@ class WhatsAppWeb(WebSocket):
 
     def handleMessage(self):
         try:
-            eprint(self.data);
+            eprint("new incoming message: " + self.data);
             tag = self.data.split(",", 1)[0];
             obj = json.loads(self.data[len(tag)+1:]);
 
+            eprint("parsed obj:");
             eprint(obj);
             if "from" not in obj or obj["from"] != "api2backend" or "type" not in obj or not (("command" in obj and obj["command"] == "backend-connectWhatsApp") or "whatsapp_instance_id" in obj):
-                self.sendError("Invalid request");
+                self.sendError("Invalid request 1");
                 return;
 
             if obj["type"] == "call":
                 if "command" not in obj:
-                    self.sendError("Invalid request");
+                    self.sendError("Invalid request 2");
                     return;
 
                 if obj["command"] == "backend-connectWhatsApp":
